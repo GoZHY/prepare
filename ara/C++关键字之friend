@@ -1,0 +1,105 @@
+原则上, 类的私有（private）和受保护（protected）成员不能从声明它们的同一类外部访问。但是, 此规则不适用于友元 "friends"。
+
+      以friend关键字修饰的函数或类称为友元函数或友元类。
+
+友元函数
+
+       友元函数是可以直接访问类的私有成员的非成员函数。它是定义在类外的普通函数，它不属于任何类，但需要在类的定义中加以声明，声明时只需在友元的名称前加上关键字friend，其格式如下：
+
+     friend 类型 函数名(形式参数);
+
+　　友元函数的声明可以放在类的私有部分，也可以放在公有部分，它们是没有区别的，都说明是该类的一个友元函数。
+
+　　一个函数可以是多个类的友元函数，只需要在各个类中分别声明。
+
+　　友元函数的调用与一般函数的调用方式和原理一致。
+
+ 
+
+友元类
+
+　　友元类的所有成员函数都是另一个类的友元函数，都可以访问另一个类中的隐藏信息（包括私有成员和保护成员）。       
+
+　　当希望一个类可以存取另一个类的私有成员时，可以将该类声明为另一类的友元类。定义友元类的语句格式如下：
+
+　　friend class 类名;
+
+　　其中：friend和class是关键字，类名必须是程序中的一个已定义过的类。
+
+ 
+
+综合例子
+
+复制代码
+#include <iostream>
+using namespace std;
+
+class Square;
+class Rectangle 
+{
+private:
+    int m_nWidth;
+    int m_nHeight;
+
+public:
+    Rectangle() {}
+    Rectangle (int nX, int nY) : m_nWidth(nX), m_nHeight(nY) {}
+    int area() {return m_nWidth * m_nHeight;}
+    friend Rectangle duplicate (const Rectangle&);   // friend functions
+    void convert (Square a);
+};
+
+Rectangle duplicate (const Rectangle& param)
+{
+    Rectangle res;
+    res.m_nWidth = param.m_nWidth*2;
+    res.m_nHeight = param.m_nHeight*2;
+    return res;
+}
+
+class Square 
+{
+    friend class Rectangle;                            // friend class
+private:
+    int side;
+public:
+    Square (int a) : side(a) {}
+};
+
+void Rectangle::convert (Square a) 
+{
+    m_nWidth = a.side;
+    m_nHeight = a.side;
+}
+
+int main () {
+    Rectangle foo;
+    Rectangle bar (2,3);
+    foo = duplicate (bar);
+    cout << foo.area() << endl;
+
+    Rectangle rect;
+    Square sqr (4);
+    rect.convert(sqr);
+    cout << rect.area() << endl;
+
+    return 0;
+}
+复制代码
+　　说明：
+
+　　duplicate 函数为类Rectangle的一个友元函数，可以访问该类的不同对象的私有成员m_nWidth和m_nHeight，形式上看duplicate 声明为该类的一个成员函数，但是其仅仅有该类私有成员的访问权限而已，并不是该类的一个成员函数！
+
+　　类Rectangle为类Square 的一个友元类，则允许类Rectangle的成员函数可以访问类Square 的私有或保护成员，本例中访问了类Square 的私有成员变量side。
+
+ 
+
+使用友元类时注意：
+
+　　1、友元关系不能被继承。
+
+　　2、友元关系是单向的，不具有交换性。若类B是类A的友元，类A不一定是类B的友元，要看在类中是否有相应的声明。
+
+　　3、友元关系具有非传递性。若类B是类A的友元，类C是B的友元，类C不一定是类A的友元，同样要看类中是否有相应的申明。
+
+希望大家能把自己的所学和他人一起分享，不要去鄙视别人索取时的贪婪，因为最应该被鄙视的是不肯分享时的吝啬。
